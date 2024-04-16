@@ -17,6 +17,24 @@
 <!-- Contributors: Thanks for geting interested, however we DON'T accept new transitions to the README, thanks. -->
 </p>
 
+## How to run the project
+
+### Install PNPM if not already done
+
+```bash
+npm i -g pnpm
+```
+
+### start the server
+
+If you prefer to do it manually with the cleaner git history
+
+```bash
+pnpm i
+
+pnpm dev
+```
+
 ## Features
 
 - ⚡️ [Vue 3](https://github.com/vuejs/core), [Vite](https://github.com/vitejs/vite), [pnpm](https://pnpm.io/), [ESBuild](https://github.com/evanw/esbuild) - born with fastness
