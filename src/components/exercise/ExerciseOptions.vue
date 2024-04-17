@@ -22,6 +22,8 @@ function changeSelection(i: number) {
 watch(selectedOption, () => {
   emit('update:is-correct', selectedOption.value !== null && task.value?.options?.[selectedOption.value].isCorrect)
   emit('update:is-form-filled', selectedOption.value !== null)
+  if (selectedOption.value !== null && task.value?.options?.[selectedOption.value].text)
+    exerciseStore.tasksAnswers[exerciseStore.currentTaskIndex] = task.value?.options?.[selectedOption.value].text
 })
 
 watch(() => exerciseStore.currentTaskIndex, () => {

@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
-import type { Exercise, Option, OptionsTask, Task, TypeInTask } from '~/lib/types'
+import type { Exercise, Option, OptionsTask, SaveAnswerPayload, Task, TypeInTask } from '~/lib/types'
 
 export const useExerciseStore = defineStore('exercise', () => {
   const exercise = ref<Exercise | null>(null)
 
   const currentScore = ref<number>(0)
+  const tasksAnswers = ref<(string | string[])[]>([])
 
   const currentTaskIndex = ref<number>(0)
   const progressPercentage = computed<number>(() => {
@@ -34,8 +35,27 @@ export const useExerciseStore = defineStore('exercise', () => {
 
   const isCurrentTaskCorrect = ref<boolean>(false)
 
-  async function loadExercise(id: string): Promise<Exercise> {
-    return new Promise((resolve) => {
+  async function loadExercise(id: string): Promise<Exercise | undefined> {
+    try {
+      const initialResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/exercise?id=${id}`)
+      const res = await initialResponse.json()
+
+      const output = {
+        id,
+        instructions: 'Complete each of the sentences below using a past progressive form of a verb',
+        tasks: res.phrases.map((phrase: { item: string, key: string | string[] }): TypeInTask => ({
+          type: 'type-in',
+          content: phrase.item.replace('___', ' % '),
+          correctOptions: typeof phrase.key === 'string' ? [phrase.key] : [...phrase.key],
+        })) as TypeInTask[],
+      }
+      return output as Exercise
+    }
+    catch (error: any) {
+      console.error(`An error occurred: ${error.message}`)
+    }
+
+    /*     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({
           id,
@@ -79,7 +99,69 @@ export const useExerciseStore = defineStore('exercise', () => {
           ],
         })
       }, 1000)
-    })
+    }) */
+  }
+
+  async function saveExercise(id: string, payload: SaveAnswerPayload): Promise<void> {
+    try {
+      await fetch(`${import.meta.env.VITE_BASE_API_URL}/save-answers`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+    }
+    catch (error: any) {
+      console.error(`An error occurred: ${error.message}`)
+    }
+
+    /*     return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          id,
+          instructions: 'Complete each of the sentences below using a past progressive form of a verb',
+          tasks: [
+            {
+              content: 'I watched this film before, the best % is when the main character realizes its superpower.',
+              type: 'options',
+              options: [
+                { text: 'science', isCorrect: false },
+                { text: 'scene', isCorrect: true },
+                { text: 'scent', isCorrect: false },
+                { text: 'descend', isCorrect: false },
+              ],
+            },
+            {
+              content: 'I % (not see) him since we % (be) at school together',
+              type: 'type-in',
+              correctOptions: [
+                'haven\'t seen',
+                'were',
+              ],
+            },
+            {
+              content: 'How long % (to do) it take you to get good at drawing',
+              type: 'type-in',
+              correctOptions: [
+                'did',
+              ],
+            },
+            {
+              content: 'I watched this film before, the best scene is when the main character % its superpower.',
+              type: 'options',
+              options: [
+                { text: 'realized', isCorrect: false },
+                { text: 'has realized', isCorrect: false },
+                { text: 'realizes', isCorrect: true },
+                { text: 'realize', isCorrect: false },
+              ],
+            },
+          ],
+        })
+      }, 1000)
+    }) */
   }
 
   async function saveUserProgress() {
@@ -96,8 +178,10 @@ export const useExerciseStore = defineStore('exercise', () => {
     isCurrentTaskCorrect,
     currentScore,
     showingSummary,
+    tasksAnswers,
 
     loadExercise,
     saveUserProgress,
+    saveExercise,
   }
 })

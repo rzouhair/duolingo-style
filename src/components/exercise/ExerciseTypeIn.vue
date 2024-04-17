@@ -36,6 +36,7 @@ watch(() => taskAnswers.value, () => {
   emit('update:is-correct', taskAnswers.value.every((answer, i) => task.value?.correctOptions && answer.trim().toLowerCase() === task.value?.correctOptions[i].toLowerCase()))
 
   emit('update:is-form-filled', isFormFilled.value)
+  exerciseStore.tasksAnswers[exerciseStore.currentTaskIndex] = taskAnswers.value
 }, {
   immediate: true,
   deep: true,

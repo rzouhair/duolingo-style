@@ -18,3 +18,12 @@ export type OptionsTask = TypedTask & { type: 'options', options: Option[] }
 export type TypeInTask = TypedTask & { type: 'type-in', correctOptions: string[] }
 
 export type Task = OptionsTask | TypeInTask
+
+export interface SaveAnswerPayload {
+  exerciseId: string
+  answers: {
+    template: string
+    userAnswer: string | string[]
+    key: string | string[]
+  }[]
+}
